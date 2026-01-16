@@ -32,7 +32,7 @@ live_design! {
 
     pub TextTitle = <Label> {
         draw_text: {
-            text_style: { font_size: 24.0 }
+            text_style: { font_size: 20.0 }
             color: (COLOR_TEXT)
         }
     }

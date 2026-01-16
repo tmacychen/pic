@@ -45,35 +45,23 @@ live_design! {
             spacing: (SPACING_SM),
             padding: (SPACING_SM),
 
-            prev_button = <Button> {
-                width: 60,
-                height: 40,
+            prev_button = <IconButton> {
                 draw_icon: {
                     svg_file: (LEFT_ARROW)
                 }
             }
-            image_index =<Label>{
+            image_index = <TextTitle> {
                 width: Fit,
                 height: Fit,
-                draw_text: {
-                    text_style: <THEME_FONT_REGULAR> { font_size: 12.0 }
-                    color: (COLOR_TEXT)
-                }
                 text: "0"
             }
-            image_info = <Label> {
+            image_info = <TextTitle> {
                 width: Fill,
                 height: Fit,
-                draw_text: {
-                    text_style: <THEME_FONT_REGULAR> { font_size: 12.0 }
-                    color: (COLOR_TEXT)
-                }
                 text: "No image loaded"
             }
 
-            next_button = <Button> {
-                width: 60,
-                height: 40,
+            next_button = <IconButton> {
                 draw_icon: {
                     svg_file: (RIGHT_ARROW)
                 }

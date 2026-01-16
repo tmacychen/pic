@@ -26,9 +26,5 @@ live_design! {
     // Icon button
     pub IconButton = <Button> {
         width: 40, height: 40
-        draw_bg: {
-            color: transparent
-            border_radius: 20.0
-        }
     }
 }
