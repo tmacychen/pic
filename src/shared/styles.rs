@@ -14,7 +14,7 @@ live_design! {
 
     // Spacing
     pub SPACING_SM = 8.0
-    pub SPACING_MD = 16.0
+    pub SPACING_MD = 10.0
     pub SPACING_LG = 24.0
 
     // Border radius
