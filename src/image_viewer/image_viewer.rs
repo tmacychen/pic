@@ -66,14 +66,21 @@ live_design! {
     }
 }
 
+#[derive(Clone, Debug, DefaultNone)]
+pub enum ImageViewerAction {
+    PrevImage,
+    NextImage,
+    None,
+}
+
 #[derive(Live, LiveHook, Widget)]
 pub struct ImageViewer {
     #[deref]
     view: View,
-    #[rust]
-    image_paths: Vec<String>,
-    #[rust]
-    current_index: usize,
+    #[live]
+    current_image_path: String,
+    #[live]
+    image_loaded: bool,
 }
 
 impl Widget for ImageViewer {
@@ -89,106 +96,44 @@ impl Widget for ImageViewer {
 
 impl WidgetMatchEvent for ImageViewer {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions, _scope: &mut Scope) {
-        // Previous button clicked
-        if self.view.button(id!(prev_button)).clicked(&actions) {
-            if !self.image_paths.is_empty() {
-                if self.current_index > 0 {
-                    self.current_index -= 1;
-                } else {
-                    self.current_index = self.image_paths.len() - 1; // Wrap around to last image
-                }
-                self.load_current_image(cx);
-            }
-        }
-
-        // Next button clicked
-        if self.view.button(id!(next_button)).clicked(&actions) {
-            if !self.image_paths.is_empty() {
-                if self.current_index < self.image_paths.len() - 1 {
-                    self.current_index += 1;
-                } else {
-                    self.current_index = 0; // Wrap around to first image
-                }
-                self.load_current_image(cx);
-            }
-        }
+        // Navigation is handled by app, just process button clicks if needed
+        // For now, we don't need special action handling
     }
 }
 
 impl ImageViewer {
-    pub fn load_images_from_directory(&mut self, directory: &str) {
-        let mut image_paths = Vec::new();
-        let img_dir = Path::new(directory);
-
-        if img_dir.exists() && img_dir.is_dir() {
-            for entry in fs::read_dir(img_dir).unwrap() {
-                if let Ok(entry) = entry {
-                    let path = entry.path();
-                    if path.is_file() {
-                        let ext = path
-                            .extension()
-                            .and_then(|s| s.to_str())
-                            .map(|s| s.to_lowercase())
-                            .unwrap_or_default();
-
-                        // Check if the file is an image
-                        if matches!(
-                            ext.as_str(),
-                            "png" | "jpg" | "jpeg" | "gif" | "bmp" | "tga" | "tiff" | "webp"
-                        ) {
-                            image_paths.push(path.to_string_lossy().to_string());
-                        }
-                    }
-                }
-            }
-        }
-
-        image_paths.sort(); // Sort alphabetically for consistent ordering
-        self.image_paths = image_paths;
-        self.current_index = 0;
+    pub fn set_image_path(&mut self, image_path: &str) {
+        self.current_image_path = image_path.to_string();
+        self.image_loaded = true;
     }
 
     pub fn load_current_image(&mut self, cx: &mut Cx) {
-        if self.image_paths.is_empty() {
+        if self.current_image_path.is_empty() {
             self.view
                 .label(id!(image_info))
-                .set_text(cx, "No images found");
+                .set_text(cx, "No image specified");
             return;
         }
 
-        let current_path = &self.image_paths[self.current_index];
-        let filename = Path::new(current_path)
+        let path = Path::new(&self.current_image_path);
+        let filename = path
             .file_name()
             .unwrap_or_default()
             .to_string_lossy()
             .to_string();
 
-        self.view.label(id!(image_info)).set_text(
-            cx,
-            &format!(
-                "{} ({}/{})",
-                filename,
-                self.current_index + 1,
-                self.image_paths.len()
-            ),
-        );
+        self.view
+            .label(id!(image_info))
+            .set_text(cx, &format!("Image: {}", filename,));
 
         // Note: In Makepad, loading images dynamically from paths is more complex.
         // For now, we'll just display a message indicating which image should be shown.
         // Proper dynamic image loading requires pre-registering images or using different approach.
-        self.view.label(id!(image_info)).set_text(
-            cx,
-            &format!(
-                "Image: {} ({}/{})",
-                filename,
-                self.current_index + 1,
-                self.image_paths.len()
-            ),
-        );
     }
 
     pub fn init(&mut self, cx: &mut Cx) {
-        self.load_images_from_directory("./img"); // Load images from ./img directory
-        self.load_current_image(cx);
+        log!("Init method called");
+        // No need to load images here, app will control which image to show
+        log!("ImageViewer initialized");
     }
 }
