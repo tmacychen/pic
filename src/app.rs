@@ -48,6 +48,8 @@ struct App {
     state: State,
     #[rust]
     language: Language,
+    #[rust]
+    language_menu_visible: bool,
 }
 
 impl Default for App {
@@ -57,6 +59,7 @@ impl Default for App {
             placeholder: LiveDependency::default(),
             state: State::default(),
             language: Language::English,
+            language_menu_visible: false,
         }
     }
 }
@@ -78,6 +81,29 @@ impl App {
     fn on_file_menu_clicked(&mut self) {
         let menu_text = I18n::get("file", self.language);
         log!("File menu clicked: {}", menu_text);
+    }
+
+    fn toggle_language_menu(&mut self, cx: &mut Cx) {
+        self.language_menu_visible = !self.language_menu_visible;
+        self.ui.view(id!(menu_bar.language_menu)).set_visible(cx, self.language_menu_visible);
+    }
+
+    fn set_language(&mut self, cx: &mut Cx, lang: Language) {
+        self.language = lang;
+        
+        // Update file menu text
+        let file_menu_text = I18n::get("file", self.language);
+        self.ui.button(id!(menu_bar.file_menu)).set_text(cx, file_menu_text);
+        
+        // Update language button text
+        let language_text = I18n::get("language", self.language);
+        self.ui.button(id!(menu_bar.language_menu_button)).set_text(cx, language_text);
+        
+        // Hide language menu
+        self.ui.view(id!(menu_bar.language_menu)).set_visible(cx, false);
+        
+        log!("Language changed to: {:?}", lang);
+        self.ui.redraw(cx);
     }
 
     fn set_current_image(&mut self, cx: &mut Cx, image_idx: usize) {
@@ -125,6 +151,10 @@ impl LiveHook for App {
         self.language = Language::current();
         let file_menu_text = I18n::get("file", self.language);
         self.ui.button(id!(menu_bar.file_menu)).set_text(cx, file_menu_text);
+        
+        let language_text = I18n::get("language", self.language);
+        self.ui.button(id!(menu_bar.language_menu_button)).set_text(cx, language_text);
+        
         self.load_image_paths(cx, "./img".as_ref());
     }
 }
@@ -141,6 +171,18 @@ impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
         if self.ui.button(id!(menu_bar.file_menu)).clicked(&actions) {
             self.on_file_menu_clicked();
+        }
+
+        if self.ui.button(id!(menu_bar.language_menu_button)).clicked(&actions) {
+            self.toggle_language_menu(cx);
+        }
+
+        if self.ui.button(id!(menu_bar.language_menu.english_option)).clicked(&actions) {
+            self.set_language(cx, Language::English);
+        }
+
+        if self.ui.button(id!(menu_bar.language_menu.chinese_option)).clicked(&actions) {
+            self.set_language(cx, Language::Chinese);
         }
 
         if self.ui.button(id!(prev_button)).clicked(&actions) {

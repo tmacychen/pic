@@ -25,6 +25,9 @@ impl I18n {
     fn get_en(key: &str) -> &'static str {
         match key {
             "file" => "File",
+            "language" => "Language",
+            "english" => "English",
+            "chinese" => "中文",
             _ => "Unknown",
         }
     }
@@ -32,6 +35,9 @@ impl I18n {
     fn get_zh(key: &str) -> &'static str {
         match key {
             "file" => "文件",
+            "language" => "语言",
+            "english" => "English",
+            "chinese" => "中文",
             _ => "未知",
         }
     }
