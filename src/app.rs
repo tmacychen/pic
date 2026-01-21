@@ -1,6 +1,7 @@
+use crate::i18n::{I18n, Language};
 use crate::state::State;
 use makepad_widgets::*;
-use std::{path::Path};
+use std::path::Path;
 live_design! {
     use link::theme::*;
     use link::shaders::*;
@@ -16,8 +17,17 @@ live_design! {
                 window: { title: "Image Viewer", inner_size: vec2(1024, 768) }
                 body = <View> {
                     width: Fill, height: Fill
+                    flow: Down
                     show_bg: true
                     draw_bg: { color: (COLOR_BG) }
+
+                    // Add top padding to avoid  window controls button
+                    top_spacer = <View> {
+                        width: Fill, height: 32
+                        show_bg: false
+                    }
+
+                    menu_bar = <MenuBar> {}
 
                     iv = <ImageViewer> {}
                 }
@@ -36,6 +46,19 @@ struct App {
     placeholder: LiveDependency,
     #[rust]
     state: State,
+    #[rust]
+    language: Language,
+}
+
+impl Default for App {
+    fn default() -> Self {
+        Self {
+            ui: WidgetRef::default(),
+            placeholder: LiveDependency::default(),
+            state: State::default(),
+            language: Language::English,
+        }
+    }
 }
 
 impl App {
@@ -50,6 +73,11 @@ impl App {
         }
         log!("Loaded {:?} images", self.state.image_paths);
         self.set_current_image(cx, 0);
+    }
+
+    fn on_file_menu_clicked(&mut self) {
+        let menu_text = I18n::get("file", self.language);
+        log!("File menu clicked: {}", menu_text);
     }
 
     fn set_current_image(&mut self, cx: &mut Cx, image_idx: usize) {
@@ -94,6 +122,9 @@ impl LiveRegister for App {
 
 impl LiveHook for App {
     fn after_new_from_doc(&mut self, cx: &mut Cx) {
+        self.language = Language::current();
+        let file_menu_text = I18n::get("file", self.language);
+        self.ui.button(id!(menu_bar.file_menu)).set_text(cx, file_menu_text);
         self.load_image_paths(cx, "./img".as_ref());
     }
 }
@@ -108,6 +139,10 @@ impl AppMain for App {
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
+        if self.ui.button(id!(menu_bar.file_menu)).clicked(&actions) {
+            self.on_file_menu_clicked();
+        }
+
         if self.ui.button(id!(prev_button)).clicked(&actions) {
             self.go_to_previous_image(cx);
         }

@@ -27,4 +27,28 @@ live_design! {
     pub IconButton = <Button> {
         width: 40, height: 40
     }
+
+    // Menu bar
+    pub MenuBar = <View> {
+        width: Fill, height: Fit
+        show_bg: true
+        draw_bg: {
+            color: (COLOR_BG_LIGHT)
+        }
+        flow: Right
+        padding: (SPACING_SM)
+        spacing: (SPACING_SM)
+
+        file_menu = <Button> {
+            width: Fit, height: Fit
+            draw_bg: {
+                color: (COLOR_BG_LIGHT)
+            }
+            draw_text: {
+                color: (COLOR_TEXT)
+                text_style: { font_size: 14.0 }
+            }
+            text: "File"
+        }
+    }
 }
