@@ -1,3 +1,3 @@
 fn main() {
-    image_viewer::app::app_main()
+    pic::app::app_main()
 }
