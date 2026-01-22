@@ -1,5 +1,4 @@
 use makepad_widgets::*;
-use std::path::Path;
 
 live_design! {
     use link::theme::*;
@@ -14,36 +13,36 @@ live_design! {
     PLACEHOLDER = dep("crate://self/resources/placeholder.png");
 
     pub ImageViewer = {{ImageViewer}} {
-        width: Fill,
-        height: Fill,
-        show_bg: true,
+        width: Fill
+        height: Fill
+        show_bg: true
         draw_bg: {
             color: (COLOR_BG)
         }
 
-        flow: Down,
-        padding: (SPACING_MD),
-        spacing: (SPACING_MD),
+        flow: Down
+        padding: (SPACING_MD)
+        spacing: (SPACING_MD)
 
         image_container = <View> {
-            width: Fill,
-            height: Fill,
-            align: {x: 0.5, y: 0.5},
+            width: Fill
+            height: Fill
+            align: {x: 0.5, y: 0.5}
 
             current_image = <Image> {
-                width: Fill,
-                height: Fill,
-                fit: Biggest,
+                width: Fill
+                height: Fill
+                fit: Biggest
                 source: (PLACEHOLDER)
             }
         }
 
         controls = <Card> {
-            width: Fill,
-            height: Fit,
-            flow: Right,
-            spacing: (SPACING_SM),
-            padding: (SPACING_SM),
+            width: Fill
+            height: Fit
+            flow: Right
+            spacing: (SPACING_SM)
+            padding: (SPACING_SM)
 
             prev_button = <IconButton> {
                 draw_icon: {
@@ -51,13 +50,13 @@ live_design! {
                 }
             }
             image_index = <TextTitle> {
-                width: Fit,
-                height: Fit,
+                width: Fit
+                height: Fit
                 text: "0"
             }
             image_info = <TextTitle> {
-                width: Fill,
-                height: Fit,
+                width: Fill
+                height: Fit
                 text: "No image loaded"
             }
 
@@ -99,7 +98,7 @@ impl Widget for ImageViewer {
 }
 
 impl WidgetMatchEvent for ImageViewer {
-    fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions, _scope: &mut Scope) {
+    fn handle_actions(&mut self, _cx: &mut Cx, _actions: &Actions, _scope: &mut Scope) {
         // Navigation is handled by app, just process button clicks if needed
         // For now, we don't need special action handling
     }

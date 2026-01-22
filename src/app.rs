@@ -1,8 +1,10 @@
 use crate::i18n::{I18n, Language};
+use crate::language_menu::LanguageMenuAction;
 use crate::state::State;
 use makepad_widgets::*;
 use std::path::Path;
 live_design! {
+
     use link::theme::*;
     use link::shaders::*;
     use link::widgets::*;
@@ -11,25 +13,80 @@ live_design! {
     use crate::shared::widgets::*;
     use crate::image_viewer::image_viewer::ImageViewer;
 
+
+
     App = {{App}} {
         ui: <Root> {
             main_window = <Window> {
-                window: { title: "Image Viewer", inner_size: vec2(1024, 768) }
+                window: {
+                    title: "Image Viewer"
+                    inner_size: vec2(1024, 768)
+                }
                 body = <View> {
-                    width: Fill, height: Fill
+                    width: Fill
+                    height: Fill
                     flow: Down
                     show_bg: true
-                    draw_bg: { color: (COLOR_BG) }
+                    draw_bg: {
+                        color: (COLOR_BG)
+                    }
 
                     // Add top padding to avoid  window controls button
                     top_spacer = <View> {
-                        width: Fill, height: 32
+                        width: Fill
+                        height: 32
                         show_bg: false
                     }
 
                     menu_bar = <MenuBar> {}
 
                     iv = <ImageViewer> {}
+
+                    // Language menu overlay - positioned absolutely
+                    language_menu_overlay = <View> {
+                        visible: false
+                        width: 120
+                        height: Fit
+                        show_bg: true
+                        draw_bg: {
+                            color: (COLOR_BG_LIGHT)
+                        }
+                        flow: Down
+                        padding: 8.0
+                        spacing: 0
+
+                        english_option = <Button> {
+                            width: Fill
+                            height: Fit
+                            padding: 8.0
+                            draw_bg: {
+                                color: (COLOR_BG_LIGHT)
+                            }
+                            draw_text: {
+                                color: (COLOR_TEXT)
+                                text_style: {
+                                    font_size: 13.0
+                                }
+                            }
+                            text: "English"
+                        }
+
+                        chinese_option = <Button> {
+                            width: Fill
+                            height: Fit
+                            padding: 8.0
+                            draw_bg: {
+                                color: (COLOR_BG_LIGHT)
+                            }
+                            draw_text: {
+                                color: (COLOR_TEXT)
+                                text_style: {
+                                    font_size: 13.0
+                                }
+                            }
+                            text: "中文"
+                        }
+                    }
                 }
             }
         }
@@ -85,7 +142,8 @@ impl App {
 
     fn toggle_language_menu(&mut self, cx: &mut Cx) {
         self.language_menu_visible = !self.language_menu_visible;
-        self.ui.view(id!(menu_bar.language_menu)).set_visible(cx, self.language_menu_visible);
+        self.ui.view(id!(language_menu_overlay)).set_visible(cx, self.language_menu_visible);
+        self.ui.redraw(cx);
     }
 
     fn set_language(&mut self, cx: &mut Cx, lang: Language) {
@@ -100,7 +158,8 @@ impl App {
         self.ui.button(id!(menu_bar.language_menu_button)).set_text(cx, language_text);
         
         // Hide language menu
-        self.ui.view(id!(menu_bar.language_menu)).set_visible(cx, false);
+        self.language_menu_visible = false;
+        self.ui.view(id!(language_menu_overlay)).set_visible(cx, false);
         
         log!("Language changed to: {:?}", lang);
         self.ui.redraw(cx);
@@ -177,11 +236,24 @@ impl MatchEvent for App {
             self.toggle_language_menu(cx);
         }
 
-        if self.ui.button(id!(menu_bar.language_menu.english_option)).clicked(&actions) {
-            self.set_language(cx, Language::English);
+        // Handle language menu actions
+        for action in actions {
+            match action.as_widget_action().cast() {
+                LanguageMenuAction::SelectEnglish => {
+                    self.set_language(cx, Language::English);
+                }
+                LanguageMenuAction::SelectChinese => {
+                    self.set_language(cx, Language::Chinese);
+                }
+                _ => {}
+            }
         }
 
-        if self.ui.button(id!(menu_bar.language_menu.chinese_option)).clicked(&actions) {
+        // Handle direct button clicks from overlay menu
+        if self.ui.button(id!(language_menu_overlay.english_option)).clicked(&actions) {
+            self.set_language(cx, Language::English);
+        }
+        if self.ui.button(id!(language_menu_overlay.chinese_option)).clicked(&actions) {
             self.set_language(cx, Language::Chinese);
         }
 
